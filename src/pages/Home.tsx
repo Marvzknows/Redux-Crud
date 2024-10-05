@@ -1,32 +1,38 @@
 import { Box, Button, Container, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import Navbar from "../component/Navbar";
 import { Outlet } from "react-router-dom";
-import React, { useState } from "react";
-import { AddTodo, ConsoleLogTodo, PrioritizationType } from "../Redux/features/Todo/todoSlice";
+import React, { useEffect, useState } from "react";
+import { AddTodo, PrioritizationType } from "../Redux/features/Todo/todoSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../Redux/store";
-// import { useAppSelector, useAppDispatch } from 'app/hooks'
 
 const Home = () => {
 
   const [todoTitle, setTodoTitle] = useState('');
-  const [prioritization, setPrioritization] = useState<PrioritizationType | string>('');
+  const [prioritization, setPrioritization] = useState<PrioritizationType>('Low');
+  const [ErrorMessage, setErrorMessage] = useState('');
 
-  // const todos = useSelector(state: RootState)
-  const todos = useSelector((state: RootState) => state.todo);
   const dispatch = useDispatch<AppDispatch>();
+  const todoState = useSelector((state: RootState) => state.todo)
+  const { error } = todoState;
+
+  useEffect(() => {
+    if (error) {
+      setErrorMessage('Invalid Todo Title');
+    } else {
+      if (todoTitle.trim() !== '') {
+        setErrorMessage('');
+        setTodoTitle('');
+      }
+    }
+  }, [error]);
 
   const OnSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // console.table({
-    //   todoTitle,
-    //   prioritization
-    // })
+    e.preventDefault(); 
 
     dispatch(AddTodo({
-      todoTtitle: 'MARVZKNOWS',
-      prioritization: 'Low'
+      todoTtitle: todoTitle,
+      prioritization: prioritization
     }))
   }
 
@@ -36,7 +42,7 @@ const Home = () => {
         <Container
           sx={{
             bgcolor: "whitesmoke",
-            minHeight: "93vh",
+            minHeight: "90vh",
             boxShadow:
               "rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;",
             borderRadius: 2,
@@ -54,12 +60,16 @@ const Home = () => {
               }}
             >
               <TextField
+                error={error || ErrorMessage.length !== 0}
+                helperText={error || ErrorMessage ? ErrorMessage : ''}
                 label="Todo Title"
                 defaultValue=""
                 placeholder="Enter todo title"
                 fullWidth
                 value={todoTitle}
-                onChange={(e) => setTodoTitle(e.target.value)}
+                onChange={(e) => {
+                  setTodoTitle(e.target.value)
+                }}
               />
 
               <FormControl fullWidth>
@@ -69,7 +79,7 @@ const Home = () => {
                   id="demo-simple-select"
                   value={prioritization}
                   label="Prioritization"
-                  onChange={(e) => setPrioritization(e.target.value)}
+                  onChange={(e) => setPrioritization(e.target.value as PrioritizationType)}
                 >
                   <MenuItem value={'Low'}>Low</MenuItem>
                   <MenuItem value={'Medium'}>Medium</MenuItem>
@@ -87,19 +97,6 @@ const Home = () => {
               ADD TO DO
             </Button>
           </form>
-
-          <Button
-              onClick={() => {
-                console.log(todos)
-              }}
-              type="button"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 2, fontWeight: 600 }}
-            >
-              VIEW TO DO
-            </Button>
-
           <Outlet />
         </Container>
       </Box>

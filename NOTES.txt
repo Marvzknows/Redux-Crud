@@ -9,8 +9,13 @@ Add Todo
     prioritization: "low" | "high" | "medium" 
 }
 
-Delete Todo
-Edit Todo
-View Todo
+NAHINTO: 
+- Clear Input Fields after Adding
+- Validation, show error validation
+- Delete Todo
+- Edit Todo
+- View Todo
 
-NAHINTO: SA PAG TRY NG PAG DISPLAY NG DATA SA VIEWTODO PAGE
+
+
+

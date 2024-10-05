@@ -6,36 +6,51 @@ type todoStatesType = {
     id: string
     title: string,
     date_added: string,
-    date_completed: string,
+    date_completed: string | null,
     prioritization: PrioritizationType,
-}[]
+}
 
-const todoStates: todoStatesType = [];
+type initialStateType = {
+    todos: todoStatesType[],
+    error: boolean,
+}
 
 const GetCurrentDate = () => {
-    const date = new Date;
-    const day = date.getDay();
+    const date = new Date();
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-    const month = date.getMonth() + 1;
 
     return `${day}/${month}/${year}`;
+};
+
+const initialState: initialStateType = {
+    error: false,
+    todos: []
 }
 
 const todoSlice = createSlice({
     name: 'todo',
-    initialState: todoStates,
+    initialState: initialState,
     reducers: {
-        // Add Todo
         AddTodo: (state, actions: PayloadAction<{todoTtitle: string, prioritization: PrioritizationType}>) => {
+            
+            if (!actions.payload.todoTtitle.trim() || actions.payload.todoTtitle.trim() === '') {
+                console.log('FAILED')
+                state.error = true;
+                return;
+            }
             const newTodo = {
                 id: Date.now().toString(),
                 title: actions.payload.todoTtitle,
                 date_added: GetCurrentDate(),
-                date_completed: '',
+                date_completed: null,
                 prioritization: actions.payload.prioritization,
             }
 
-            state.push(newTodo)
+            console.log('SUCCESS')
+            state.todos.push(newTodo);
+            state.error = false;
         },
 
         ConsoleLogTodo: (state) => {
