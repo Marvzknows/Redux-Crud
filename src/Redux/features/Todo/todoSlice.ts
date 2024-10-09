@@ -9,10 +9,11 @@ type todoStatesType = {
     date_completed: string | null,
     prioritization: PrioritizationType,
 }
-
+ 
 type initialStateType = {
     todos: todoStatesType[],
     error: boolean,
+    done: todoStatesType[]
 }
 
 const GetCurrentDate = () => {
@@ -26,7 +27,8 @@ const GetCurrentDate = () => {
 
 const initialState: initialStateType = {
     error: false,
-    todos: []
+    todos: [],
+    done: []
 }
 
 const todoSlice = createSlice({
@@ -36,7 +38,6 @@ const todoSlice = createSlice({
         AddTodo: (state, actions: PayloadAction<{todoTtitle: string, prioritization: PrioritizationType}>) => {
             
             if (!actions.payload.todoTtitle.trim() || actions.payload.todoTtitle.trim() === '') {
-                console.log('FAILED')
                 state.error = true;
                 return;
             }
@@ -48,16 +49,34 @@ const todoSlice = createSlice({
                 prioritization: actions.payload.prioritization,
             }
 
-            console.log('SUCCESS')
             state.todos.push(newTodo);
             state.error = false;
         },
 
-        ConsoleLogTodo: (state) => {
-            console.log("TODO LISTS: ", JSON.parse(JSON.stringify(state)));
+        DoneTodo: (state, actions: PayloadAction<string>) => {
+            const getDoneTodo = state.todos.find(item => item.id === actions.payload);
+            if (!getDoneTodo) return;
+            const newDoneTodo = {
+                ...getDoneTodo,
+                date_completed: GetCurrentDate()
+            }
+            state.done.push(newDoneTodo);
+            // Remove the clicked done todo from the todo array
+            state.todos = state.todos.filter(data => data.id !== actions.payload);
+        },
+
+        DeleteTodo: (state, actions: PayloadAction<string>) => {
+            state.todos = state.todos.filter(todo => todo.id !== actions.payload);
+        },
+
+        EditTodo: (state, actions: PayloadAction<{ id: string, todoTtitle: string, prioritization: PrioritizationType }>) => {
+            const { id, todoTtitle, prioritization } = actions.payload;
+            state.todos = state.todos.map(todo =>
+                todo.id === id ? { ...todo, title: todoTtitle, prioritization } : todo
+            );
         }
     }
 })
 
-export const { AddTodo, ConsoleLogTodo } = todoSlice.actions
+export const { AddTodo, DoneTodo, DeleteTodo, EditTodo } = todoSlice.actions
 export default todoSlice.reducer;
