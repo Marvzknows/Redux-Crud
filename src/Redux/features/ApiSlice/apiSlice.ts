@@ -10,7 +10,7 @@ const userApi = createApi({
   }),
   endpoints: (builder) => ({
     //  GET METHOD
-    getUsers: builder.query<UserType[], string>({
+    getUsers: builder.query<UserPayloadType[], string>({
       query: (endpoints) => `/${endpoints}`,
     }),
 
@@ -23,8 +23,16 @@ const userApi = createApi({
       }),
     }),
 
+    // DELETE
+    deleteUser: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `user/${id}`,
+        method: 'DELETE',
+      })
+    }),
+
   }),
 });
 
-export const { useGetUsersQuery, useAddUserMutation } = userApi;
+export const { useGetUsersQuery, useAddUserMutation, useDeleteUserMutation } = userApi;
 export default userApi;
